@@ -1,0 +1,37 @@
+{{- if .Values.podDisruptionBudget -}}
+{{- if eq .Values.misc.istio.deploymentType.abTesting.enabled true }}
+{{- range $idx, $node := .Values.misc.istio.deploymentType.abTesting.deployments }}
+{{- with $ -}}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "gx-prueba.fullname" . }}-v{{ $node.name }}
+  labels:
+    {{- include "gx-prueba.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "gx-prueba.selectorLabels" . | nindent 6 }}
+      {{- include "gx-prueba.abTestingLabels" $node | nindent 6 }}
+{{- if .Values.podDisruptionBudget }}
+  {{ toYaml .Values.podDisruptionBudget | nindent 2 }}
+{{- end }}
+---
+{{- end }}
+{{- end }}
+{{- else }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "gx-prueba.fullname" . }}
+  labels:
+    {{- include "gx-prueba.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "gx-prueba.selectorLabels" . | nindent 6 }}
+{{- if .Values.podDisruptionBudget }}
+  {{ toYaml .Values.podDisruptionBudget | nindent 2 }}
+{{- end }}
+{{- end }}
+{{- end }}

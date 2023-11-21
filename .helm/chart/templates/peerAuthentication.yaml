@@ -1,0 +1,14 @@
+{{- if .Values.misc.istio.enabled -}}
+apiVersion: "security.istio.io/v1beta1"
+kind: "PeerAuthentication"
+metadata:
+  name: {{ include "gx-prueba.fullname" . }}
+  labels:
+    {{- include "gx-prueba.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "gx-prueba.selectorLabels" . | nindent 6 }}
+  mtls:
+    mode: {{ .Values.misc.istio.defaultPolicy.mtlsMode | quote }}
+{{- end }}

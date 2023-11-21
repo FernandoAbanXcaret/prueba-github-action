@@ -1,0 +1,31 @@
+{{- if .Values.misc.istio.enabled -}}
+{{- if .Values.misc.istio.enabled -}}
+{{- if .Values.misc.istio.defaultPolicy.defaultDeny }}
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ include "gx-prueba.fullname" . }}
+  labels:
+    {{- include "gx-prueba.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "gx-prueba.selectorLabels" . | nindent 6 }}
+  {}
+{{- else }}
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ include "gx-prueba.fullname" . }}
+  labels:
+    {{- include "gx-prueba.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "gx-prueba.selectorLabels" . | nindent 6 }}
+  action: ALLOW
+  rules:
+  - {}
+{{- end }}
+{{- end }}
+{{- end }}

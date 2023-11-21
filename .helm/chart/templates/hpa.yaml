@@ -1,0 +1,71 @@
+{{- if .Values.autoscaling.enabled }}
+{{- if eq .Values.misc.istio.deploymentType.abTesting.enabled true }}
+{{- range $idx, $node := .Values.misc.istio.deploymentType.abTesting.deployments }}
+{{- with $ -}}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "gx-prueba.fullname" . }}-v{{ $node.name }}
+  labels:
+    {{- include "gx-prueba.labels" . | nindent 4 }}
+    {{- include "gx-prueba.abTestingLabels" $node | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ template "gx-prueba.fullname" . }}-v{{ $node.name }}
+  minReplicas: {{ .Values.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.autoscaling.maxReplicas }}
+  metrics:
+{{- with .Values.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ . }}
+{{- end }}
+{{- with .Values.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ . }}
+{{- end }}
+---
+{{- end }}
+{{- end }}
+{{- else }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "gx-prueba.fullname" . }}
+  labels:
+    {{- include "gx-prueba.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ template "gx-prueba.fullname" . }}
+  minReplicas: {{ .Values.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.autoscaling.maxReplicas }}
+  metrics:
+{{- with .Values.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ . }}
+{{- end }}
+{{- with .Values.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ . }}
+{{- end }}
+{{- end }}
+{{- end }}

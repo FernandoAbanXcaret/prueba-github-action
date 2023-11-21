@@ -1,0 +1,28 @@
+{{- if .Values.misc.istio.enabled -}}
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: {{ include "gx-prueba.fullname" . }}
+  labels:
+    {{- include "gx-prueba.labels" . | nindent 4 }}
+spec:
+  host: {{ include "gx-prueba.fullname" . }}{{ (print "." .Release.Namespace ".svc.cluster.local") }}
+{{- if .Values.misc.istio.outlierDetection }}
+  trafficPolicy:
+    outlierDetection:
+{{ toYaml .Values.misc.istio.outlierDetection | indent 6 }}
+{{- end }}
+  subsets:
+{{ if eq .Values.misc.istio.deploymentType.abTesting.enabled true }}
+{{- range .Values.misc.istio.deploymentType.abTesting.deployments }}
+    - name: {{ (print "v" .name) | quote }}
+      labels:
+        deployment: {{ (print "v" .name) | quote }}
+{{- end }}
+{{ else }}
+    - name: {{ (print "v" .Values.misc.istio.version) | quote }}
+      labels:
+        version: {{ (print "v" .Values.misc.istio.version) | quote }}
+{{- end }}
+
+{{- end }}

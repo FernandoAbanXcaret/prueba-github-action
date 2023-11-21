@@ -1,0 +1,39 @@
+{{- if .Values.misc.istio.enabled -}}
+{{- if .Values.misc.istio.authorizations.enabled -}}
+{{- range $key, $spec := .Values.misc.istio.authorizations }}
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ include "gx-prueba.fullname" . }}
+  labels:
+    {{- include "gx-prueba.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "gx-prueba.selectorLabels" . | nindent 6 }}
+  rules:
+  {{- range $rule := $spec.rules }}
+  - from:
+    - source:
+        principals:
+        {{- range $principal := $rule.allowPrincipals}}
+        {{- if contains "/" $principal }}
+        {{- $splits := split "/" $principal }}
+        - {{ (print "cluster.local/ns/" $splits._0 "/sa/" $splits._1) | quote }}
+        {{- else }}
+        - {{ (print "cluster.local/ns/" $.Release.Namespace "/sa/" $principal) | quote }}
+        {{- end }}
+        {{- end }}
+    {{- if $rule.paths }}
+    to:
+    - operation:
+        paths:
+        {{- range $rule.paths }}
+        - {{.}}
+        {{- end }}
+    {{ end }}
+  {{- end }}
+---
+{{- end }}
+{{- end }}
+{{- end }}

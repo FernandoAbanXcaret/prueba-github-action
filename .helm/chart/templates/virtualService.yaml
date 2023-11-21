@@ -1,0 +1,50 @@
+{{- if .Values.misc.istio.enabled -}}
+{{- $releaseNamespace := .Release.Namespace -}}
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ include "gx-prueba.fullname" . }}
+  labels:
+    {{- include "gx-prueba.labels" . | nindent 4 }}
+spec:
+  {{- if .Values.misc.istio.ingressGateway.enabled }}
+  gateways:
+    - {{ .Values.misc.istio.ingressGateway.name | quote }}
+  hosts:
+    - {{ .Values.misc.istio.ingressGateway.host | quote }}
+  {{ else }}
+  hosts:
+    - {{ include "gx-prueba.fullname" . }}{{ (print "." .Release.Namespace ".svc.cluster.local") }}
+  {{- end }}
+  http:
+  {{- if .Values.misc.istio.ingressGateway.enabled }}
+    - match:
+    {{- range .Values.misc.istio.ingressGateway.matchPrefix }}
+      - uri:
+          prefix: {{ . | quote }}
+    {{- end }}
+      route:
+  {{ else }}
+    - route:
+  {{- end }}
+  {{- if eq .Values.misc.istio.deploymentType.abTesting.enabled true }}
+  {{- range .Values.misc.istio.deploymentType.abTesting.deployments }}
+      - destination:
+          host: {{ include "gx-prueba.fullname" $ }}{{ (print "." $releaseNamespace ".svc.cluster.local") }}
+          subset: {{ (print "v" .name) | quote }}
+        weight: {{ (print .weight) }}
+
+  {{- end }}
+  {{- else }}
+      - destination:
+          host: {{ include "gx-prueba.fullname" $ }}{{ (print "." .Release.Namespace ".svc.cluster.local") }}
+          subset: {{ (print "v" .Values.misc.istio.version) | quote }}
+  {{- end }}
+  {{- if .Values.misc.istio.retries }}
+      retries:
+{{ toYaml .Values.misc.istio.retries | indent 8 }}
+      timeout: {{ required "You must specify an overall timeout to use retries" .Values.misc.istio.overallTimeout }}
+  {{- else if .Values.misc.istio.overallTimeout }}
+      timeout: {{ .Values.misc.istio.overallTimeout }}
+  {{- end }}
+{{- end }}

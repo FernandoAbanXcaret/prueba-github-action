@@ -1,0 +1,161 @@
+{{- if eq .Values.misc.istio.deploymentType.abTesting.enabled true }}
+{{- range $idx, $node := .Values.misc.istio.deploymentType.abTesting.deployments }}
+{{- with $ -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "gx-prueba.fullname" . }}-v{{ $node.name }}
+  labels:
+    {{- include "gx-prueba.labels" . | nindent 4 }}
+    {{- if .Values.misc.istio.enabled }}
+    {{- include "gx-prueba.istioLabels" . | nindent 4 }}
+    {{- end }}
+    {{- include "gx-prueba.abTestingLabels" $node | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "gx-prueba.selectorLabels" . | nindent 6 }}
+      {{- if .Values.misc.istio.enabled }}
+      {{- include "gx-prueba.istioLabels" . | nindent 6 }}
+      {{- end }}
+      {{- include "gx-prueba.abTestingLabels" $node | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "gx-prueba.selectorLabels" . | nindent 8 }}
+        {{- if .Values.misc.istio.enabled }}
+        {{- include "gx-prueba.istioLabels" . | nindent 8 }}
+        {{- end }}
+        {{- include "gx-prueba.abTestingLabels" $node | nindent 8 }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ include "gx-prueba.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.image.containerPort }}
+              protocol: TCP
+          {{- with .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+          {{- range .Values.image.env }}
+            - name: {{ .name | quote }}
+              value: {{ .value | quote }}
+          {{- end }}
+          {{- range $node.env }}
+            - name: {{ .name | quote }}
+              value: {{ .value | quote }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- if .Values.misc.affinity.enabled }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- end }}
+    {{- if .Values.misc.tolerations.enabled }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- end }}
+{{- end }}
+---
+{{- end }}
+{{- else }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "gx-prueba.fullname" . }}
+  labels:
+    {{- include "gx-prueba.labels" . | nindent 4 }}
+    {{- if .Values.misc.istio.enabled }}
+    {{- include "gx-prueba.istioLabels" . | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "gx-prueba.selectorLabels" . | nindent 6 }}
+      {{- if .Values.misc.istio.enabled }}
+      {{- include "gx-prueba.istioLabels" . | nindent 6 }}
+      {{- end }}
+  template:
+    metadata:
+      labels:
+        {{- include "gx-prueba.selectorLabels" . | nindent 8 }}
+        {{- if .Values.misc.istio.enabled }}
+        {{- include "gx-prueba.istioLabels" . | nindent 8 }}
+        {{- end }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ include "gx-prueba.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.image.containerPort }}
+              protocol: TCP
+          {{- with .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+          {{- range .Values.image.env }}
+            - name: {{ .name | quote }}
+              value: {{ .value | quote }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- if .Values.misc.affinity.enabled }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- end }}
+    {{- if .Values.misc.tolerations.enabled }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- end }}
+{{- end }}
