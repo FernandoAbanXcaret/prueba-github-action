@@ -1,0 +1,14 @@
+name: hola-mundo 
+on:
+  push:
+    branches: [ "aprendiendo-github-actions" ]
+jobs:
+  hola-mundo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: set up Python
+        uses: actions/checkout@v2
+        with:
+          python-version: 3.x
+      - name: Hola mundo
+        run: python hola-mundo.py
