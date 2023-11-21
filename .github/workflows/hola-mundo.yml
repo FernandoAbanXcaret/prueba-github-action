@@ -1,7 +1,5 @@
 name: hola-mundo 
-on:
-  push:
-    branches: [ "aprendiendo-github-actions" ]
+on: push
 jobs:
   hola-mundo:
     runs-on: ubuntu-latest
