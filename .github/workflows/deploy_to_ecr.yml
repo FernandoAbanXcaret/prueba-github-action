@@ -50,6 +50,7 @@ jobs:
         IMAGE_TAG: main-${{ steps.commit.outputs.short }}
       run: |
         aws sts get-caller-identity
+        eksctl utils write-kubeconfig --cluster test-cluster -p eksctl
         kubectl apply -f .helm/chart/templates/deployment.yaml
         kubectl apply -f .helm/chart/templates/service.yaml
 
