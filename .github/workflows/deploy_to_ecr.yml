@@ -13,7 +13,13 @@ jobs:
       uses: prompt/actions-commit-hash@v3
 
     - name: Check out code
-      uses: actions/checkout@v2 
+      uses: actions/checkout@v3
+      
+    - name: Install kubectl
+      uses: azure/setup-kubectl@v2.0
+      with:
+        version: 'v1.24.0'
+      id: install
        
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
