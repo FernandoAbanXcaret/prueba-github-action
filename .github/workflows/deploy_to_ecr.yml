@@ -49,8 +49,7 @@ jobs:
         REGISTRY: ${{ steps.login-ecr.outputs.registry }}        
         IMAGE_TAG: main-${{ steps.commit.outputs.short }}
       run: |
-        aws sts get-caller-identity
-        eksctl utils write-kubeconfig --cluster test-cluster -p eksctl
+        aws sts get-caller-identity    
         kubectl apply -f .helm/chart/templates/deployment.yaml
         kubectl apply -f .helm/chart/templates/service.yaml
 
