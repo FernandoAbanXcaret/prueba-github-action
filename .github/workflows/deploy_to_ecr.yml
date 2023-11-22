@@ -42,14 +42,13 @@ jobs:
         docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
     - name: Update kube config
-      run: aws eks --region us-east-1 update-kubeconfig --name comercial-prod-gx-eks-master-cluster
+      run: aws eks --region us-east-1 update-kubeconfig --name comercial-prod-gx-eks-master-cluster --version 1.21 --approve
 
     - name: Deploy to EKS
       env:
         REGISTRY: ${{ steps.login-ecr.outputs.registry }}        
         IMAGE_TAG: main-${{ steps.commit.outputs.short }}
       run: |
-        aws eks --region us-east-1 update-kubeconfig --name comercial-prod-gx-eks-master-cluster
         aws sts get-caller-identity
         kubectl apply -f .helm/chart/templates/deployment.yaml
         kubectl apply -f .helm/chart/templates/service.yaml
