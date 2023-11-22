@@ -49,9 +49,6 @@ jobs:
         REGISTRY: ${{ steps.login-ecr.outputs.registry }}        
         IMAGE_TAG: main-${{ steps.commit.outputs.short }}
       run: | 
-        sudo cp /etc/kubernetes/admin.conf $HOME/
-        sudo chown $(id -u):$(id -g) $HOME/admin.conf
-        export KUBECONFIG=$HOME/admin.conf
         kubectl apply -f .helm/chart/templates/deployment.yaml
         kubectl apply -f .helm/chart/templates/service.yaml
 
