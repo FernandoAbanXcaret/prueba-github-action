@@ -4,36 +4,36 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "gx-xoximilco.fullname" . }}-v{{ $node.name }}
+  name: {{ include "gx-prueba.fullname" . }}-v{{ $node.name }}
   labels:
-    {{- include "gx-xoximilco.labels" . | nindent 4 }}
+    {{- include "gx-prueba.labels" . | nindent 4 }}
     {{- if .Values.misc.istio.enabled }}
-    {{- include "gx-xoximilco.istioLabels" . | nindent 4 }}
+    {{- include "gx-prueba.istioLabels" . | nindent 4 }}
     {{- end }}
-    {{- include "gx-xoximilco.abTestingLabels" $node | nindent 4 }}
+    {{- include "gx-prueba.abTestingLabels" $node | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "gx-xoximilco.selectorLabels" . | nindent 6 }}
+      {{- include "gx-prueba.selectorLabels" . | nindent 6 }}
       {{- if .Values.misc.istio.enabled }}
-      {{- include "gx-xoximilco.istioLabels" . | nindent 6 }}
+      {{- include "gx-prueba.istioLabels" . | nindent 6 }}
       {{- end }}
-      {{- include "gx-xoximilco.abTestingLabels" $node | nindent 6 }}
+      {{- include "gx-prueba.abTestingLabels" $node | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "gx-xoximilco.selectorLabels" . | nindent 8 }}
+        {{- include "gx-prueba.selectorLabels" . | nindent 8 }}
         {{- if .Values.misc.istio.enabled }}
-        {{- include "gx-xoximilco.istioLabels" . | nindent 8 }}
+        {{- include "gx-prueba.istioLabels" . | nindent 8 }}
         {{- end }}
-        {{- include "gx-xoximilco.abTestingLabels" $node | nindent 8 }}
+        {{- include "gx-prueba.abTestingLabels" $node | nindent 8 }}
     spec:
     {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-      serviceAccountName: {{ include "gx-xoximilco.serviceAccountName" . }}
+      serviceAccountName: {{ include "gx-prueba.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -88,33 +88,33 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "gx-xoximilco.fullname" . }}
+  name: {{ include "gx-prueba.fullname" . }}
   labels:
-    {{- include "gx-xoximilco.labels" . | nindent 4 }}
+    {{- include "gx-prueba.labels" . | nindent 4 }}
     {{- if .Values.misc.istio.enabled }}
-    {{- include "gx-xoximilco.istioLabels" . | nindent 4 }}
+    {{- include "gx-prueba.istioLabels" . | nindent 4 }}
     {{- end }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "gx-xoximilco.selectorLabels" . | nindent 6 }}
+      {{- include "gx-prueba.selectorLabels" . | nindent 6 }}
       {{- if .Values.misc.istio.enabled }}
-      {{- include "gx-xoximilco.istioLabels" . | nindent 6 }}
+      {{- include "gx-prueba.istioLabels" . | nindent 6 }}
       {{- end }}
   template:
     metadata:
       labels:
-        {{- include "gx-xoximilco.selectorLabels" . | nindent 8 }}
+        {{- include "gx-prueba.selectorLabels" . | nindent 8 }}
         {{- if .Values.misc.istio.enabled }}
-        {{- include "gx-xoximilco.istioLabels" . | nindent 8 }}
+        {{- include "gx-prueba.istioLabels" . | nindent 8 }}
         {{- end }}
     spec:
     {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-      serviceAccountName: {{ include "gx-xoximilco.serviceAccountName" . }}
+      serviceAccountName: {{ include "gx-prueba.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:

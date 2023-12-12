@@ -12,14 +12,8 @@ jobs:
       id: commit
       uses: prompt/actions-commit-hash@v3
 
-    - name: Check out code
+    - name: Checkout code
       uses: actions/checkout@v3
-      
-    - name: Install kubectl
-      uses: azure/setup-kubectl@v2.0
-      with:
-        version: 'v1.21.0'
-      id: install
        
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -40,15 +34,18 @@ jobs:
       run: |
         docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
         docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
-
+      working-directory: ./app
+  
     - name: Update kube config
-      run: aws eks --region us-east-1 update-kubeconfig --name comercial-prod-gx-comercial-prod-cluster --version 1.28 --approve
+      run: 
 
     - name: Deploy to EKS
       env:
-        REGISTRY: ${{ steps.login-ecr.outputs.registry }}        
+        REGISTRY: ${{ steps.login-ecr.outputs.registry }} 
+        REPOSITORY: gx-prueba       
         IMAGE_TAG: main-${{ steps.commit.outputs.short }}
       run: | 
-        kubectl apply -f .helm/chart/templates/deployment.yaml
-        kubectl apply -f .helm/chart/templates/service.yaml
+        aws eks update-kubeconfig --region us-east-1 --name comercial-prod-gx-comercial-prod-cluster
+        kubectl set image deployment/gx-prueba gx-prueba=${{ steps.login-ecr.outputs.registry }}:main-${{ steps.commit.outputs.short }}
+
 
