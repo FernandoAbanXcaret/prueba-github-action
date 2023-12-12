@@ -48,6 +48,6 @@ jobs:
         IMAGE_TAG: main-${{ steps.commit.outputs.short }}
       run: | 
         aws eks update-kubeconfig --region us-east-1 --name comercial-prod-gx-comercial-prod-cluster
-        kubectl set image deployment/gx-prueba gx-prueba=${{ steps.login-ecr.outputs.registry }}:main-${{ steps.commit.outputs.short }}
+        kubectl set image deployment/gx-prueba gx-prueba=$REGISTRY/$REPOSITORY:$IMAGE_TAG
 
 
